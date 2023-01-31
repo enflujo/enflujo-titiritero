@@ -1,0 +1,240 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+::selection {
+  background: rgba(235, 80, 80, 0.8);
+  color: #ffe6f9;
+}
+
+body {
+  font-family: 'CicleFina';
+  line-height: 1.6;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'CicleGordita';
+  font-weight: normal;
+}
+
+main {
+  width: 80%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  overflow: hidden;
+}
+
+input {
+  border: 1px dotted #ccc;
+  padding: 0.5em;
+}
+input:focus {
+  outline: 0;
+  border-color: black;
+}
+
+#player-fr {
+  width: 3em;
+}
+
+.sprite-cell {
+  display: inline-block;
+  border: 1px solid;
+}
+
+.option-ideal {
+  cursor: pointer;
+  margin-left: 1em;
+  padding: 0.5em;
+  color: #d23d3d;
+  border: 1px solid;
+}
+.option-ideal:hover {
+  color: black;
+}
+.option-ideal.current {
+  border-color: black;
+  background-color: black;
+  color: white;
+}
+
+/*==============================
+=            EXPORT            =
+==============================*/
+pre[class*='language'] {
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+#downloads-list a {
+  padding: 1em;
+  display: inline-block;
+  border: 1px dotted;
+}
+
+/*=====  End of EXPORT  ======*/
+/*==================================
+=            FILES LIST            =
+==================================*/
+#files .file.open .file-submenu {
+  max-height: 1000px;
+}
+
+#files {
+  margin: 0;
+  padding: 0;
+}
+
+.file {
+  margin-bottom: 1em;
+}
+
+.file-submenu {
+  transition: 0.2s max-height ease-in-out;
+  max-height: 0;
+  overflow: hidden;
+  font-style: italic;
+  font-size: 0.9em;
+}
+.file-submenu li {
+  cursor: pointer;
+  padding: 0.5em;
+  border-left: 8px solid #333333;
+  background-color: #d9d9d9;
+}
+.file-submenu li:hover {
+  background-color: #1a1a1a;
+}
+.file-submenu .delete-file:hover {
+  background-color: #ff837c;
+}
+
+.sprite-name {
+  display: block;
+  cursor: pointer;
+  padding: 0.5em;
+  background-color: #d9d9d9;
+}
+.sprite-name:hover {
+  background-color: #f0d336;
+}
+.sprite-name.current {
+  background-color: #333333;
+  color: white;
+  cursor: default;
+}
+
+/*=====  End of FILES LIST  ======*/
+canvas {
+  margin: 0 auto;
+  display: block;
+  background-color: #ffffff;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNmZmYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9JyNhYWEnLz4KPC9zdmc+Cg==);
+}
+canvas::selection {
+  background-color: transparent;
+}
+
+/*==================================
+=            NAVIGATION            =
+==================================*/
+#nav {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  position: absolute;
+  z-index: 999;
+  text-align: left;
+}
+
+.nav-item {
+  cursor: pointer;
+  margin: 0 0.5em;
+  padding: 1em;
+  display: inline-block;
+  background-color: #e6e6e6;
+  transition: 0.2s all ease-in-out;
+}
+.nav-item:hover {
+  background-color: #f2f2f2;
+}
+.nav-item.current {
+  background-color: #333333;
+  color: white;
+  cursor: default;
+}
+
+/*=====  End of NAVIGATION  ======*/
+/*=============================
+=            PAGES            =
+=============================*/
+.page-wrapper {
+  transition: 0.2s right ease-in;
+  position: absolute;
+  background-color: white;
+  top: 0;
+  padding-top: 5em;
+  right: -100%;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.page-wrapper.current {
+  right: 0;
+}
+
+#ref-box {
+  position: fixed;
+  top: 0;
+  right: 30px;
+  padding: 0.5em 1em;
+  line-height: 1.9;
+  z-index: 9999;
+  background-color: #262626;
+  color: white;
+  font-size: 0.7em;
+  text-align: right;
+}
+
+.options-form {
+  line-height: 1.5;
+}
+
+.options-form-name {
+  margin-left: 1em;
+}
+
+#ideal-options {
+  padding: 2em 1em;
+}
+
+/*=====  End of PAGES  ======*/
+.hidden {
+  display: none;
+}
