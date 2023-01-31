@@ -1,6 +1,7 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, MessageChannelMain } from 'electron';
 import { release } from 'node:os';
 import { join, parse } from 'node:path';
+import { cargar } from './Photoshop';
 
 // The built directory structure
 //
@@ -47,6 +48,7 @@ async function createWindow() {
     backgroundColor: '#39352B',
     webPreferences: {
       preload,
+      contextIsolation: true,
     },
   });
 
@@ -68,6 +70,19 @@ async function createWindow() {
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
+  });
+
+  const { port1 } = new MessageChannelMain();
+
+  ipcMain.handle('nuevo-psd', async (_, archivo) => {
+    archivo = JSON.parse(archivo);
+
+    if (archivo.type === 'image/vnd.adobe.photoshop') {
+      cargar(archivo.path);
+      win.webContents.postMessage('fotogramasCargados', null);
+    } else {
+      console.error(archivo.name, ' is not a photoshop file. It is of type: ', archivo.type);
+    }
   });
 }
 
@@ -107,13 +122,5 @@ ipcMain.handle('open-win', (_, arg) => {
     childWindow.loadURL(`${url}#${arg}`);
   } else {
     childWindow.loadFile(indexHtml, { hash: arg });
-  }
-});
-
-ipcMain.handle('nuevo-psd', (_, archivo) => {
-  if (archivo.type === 'image/vnd.adobe.photoshop') {
-    ipcRenderer.invoke('nuevo-psd', { name: parse(archivo.name).name, path: archivo.path });
-  } else {
-    console.error(archivo.name, ' is not a photoshop file. It is of type: ', archivo.type);
   }
 });

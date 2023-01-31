@@ -37,6 +37,7 @@
     "vue-tsc": "^1.0.24"
   },
   "dependencies": {
+    "pinia": "^2.0.29",
     "psd": "^3.4.0",
     "vue-router": "4"
   }

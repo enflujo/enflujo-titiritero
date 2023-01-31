@@ -7,11 +7,15 @@ declare module '*.vue' {
 }
 
 export interface Photoshop {
-  nuevo: (archivo: File) => Promise<void>;
+  nuevo: (archivo: string) => Promise<void>;
 }
 
 declare global {
   interface Window {
     photoshop: Photoshop;
   }
+}
+
+export interface FileWithPath extends File {
+  path: string;
 }

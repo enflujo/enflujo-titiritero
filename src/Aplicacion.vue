@@ -1,6 +1,28 @@
 <script setup lang="ts">
+import { ref, watch, onMounted } from 'vue';
 import Menu from './componentes/Menu.vue';
 import Referencia from './componentes/Referencia.vue';
+import { FileWithPath } from './vite-env';
+import { usarCerebroGeneral } from './cerebros/general';
+
+const cerebro = usarCerebroGeneral();
+const entrada = ref();
+const fotogramasCargados = ref(false);
+
+watch(
+  () => cerebro.fotogramasCargados,
+  (estado) => {
+    console.log(estado);
+  }
+);
+
+onMounted(() => {
+  window.onmessage = (evento) => {
+    if (evento.data && evento.data === 'fotogramasCargados') {
+      fotogramasCargados.value = true;
+    }
+  };
+});
 
 const arrastreInicio = (evento: DragEvent) => {
   (evento.target as HTMLDivElement).classList.add('enZona');
@@ -13,20 +35,64 @@ const arrastreFueraDeZona = (evento: DragEvent) => {
 const arrastreAccion = (evento: DragEvent) => {
   evento.preventDefault();
   if (evento.dataTransfer) {
-    window.photoshop.nuevo(evento.dataTransfer.files[0]);
+    window.photoshop.nuevo(JSON.stringify(evento.dataTransfer.files[0]));
   }
 };
 
 const arrastreClic = (evento: DragEvent) => {
   // fileInput.click();
 };
+
+const buscarArchivo = () => {
+  if (entrada.value) {
+    entrada.value.click();
+  }
+};
+
+const entradaArchivo = (evento: Event) => {
+  const entrada = evento.target as HTMLInputElement;
+  if (entrada && entrada.files) {
+    const { lastModified, name, path, size, type } = entrada.files[0] as FileWithPath;
+    window.photoshop.nuevo(JSON.stringify({ lastModified, name, path, size, type }));
+  }
+};
+
+function loadFrames() {
+  var imagesLoadedCount = 0;
+
+  for (var i = 0; i < workingFile.images.length; i++) {
+    var img = new Image();
+    imgs.push(img);
+    img.onload = imageLoaded;
+    img.src = '../' + workingFile.images[i].path;
+    img.dataset.offX = workingFile.images[i].offX;
+    img.dataset.offY = workingFile.images[i].offY;
+  }
+
+  function imageLoaded() {
+    imagesLoadedCount++;
+
+    if (imagesLoadedCount === workingFile.images.length) {
+      nav.items.forEach(function (item) {
+        item.classList.remove('hidden');
+      });
+      loading.classList.add('hidden');
+    }
+  }
+}
 </script>
 
 <template>
   <aside id="contenedor">
-    <input type="file" id="entrada" hidden="true" />
+    <input type="file" id="entrada" ref="entrada" @change="entradaArchivo" hidden="true" />
 
-    <div id="zona" @dragenter="arrastreInicio" @dragleave="arrastreFueraDeZona" @drop="arrastreAccion" @click=""></div>
+    <div
+      id="zona"
+      @dragenter="arrastreInicio"
+      @dragleave="arrastreFueraDeZona"
+      @drop="arrastreAccion"
+      @click="buscarArchivo"
+    ></div>
 
     <h3>Archivos</h3>
     <ul id="files"></ul>
