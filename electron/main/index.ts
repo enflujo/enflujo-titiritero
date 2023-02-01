@@ -1,6 +1,6 @@
-import { app, BrowserWindow, shell, ipcMain, MessageChannelMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { release } from 'node:os';
-import { join, parse } from 'node:path';
+import { join } from 'node:path';
 import { cargar } from './Photoshop';
 
 // The built directory structure
@@ -37,7 +37,6 @@ let win: BrowserWindow | null = null;
 // Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js');
 const url = process.env.VITE_DEV_SERVER_URL;
-const indexHtml = join(process.env.DIST, 'index.html');
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -56,14 +55,15 @@ async function createWindow() {
     // electron-vite-vue#298
     win.loadURL(url);
     // Open devTool if the app is not packaged
-    win.webContents.openDevTools();
   } else {
-    win.loadFile(indexHtml);
+    win.loadFile(join(process.env.DIST, 'index.html'));
+    win.webContents.openDevTools({ mode: 'detach' });
   }
 
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString());
+    console.log('cargado');
+    win?.webContents.postMessage('main-process-message', new Date().toLocaleString());
   });
 
   // Make all links open with the browser, not with the application
@@ -71,8 +71,6 @@ async function createWindow() {
     if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
   });
-
-  const { port1 } = new MessageChannelMain();
 
   ipcMain.handle('nuevo-psd', async (_, archivo) => {
     archivo = JSON.parse(archivo);
@@ -107,20 +105,5 @@ app.on('activate', () => {
     allWindows[0].focus();
   } else {
     createWindow();
-  }
-});
-
-// New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-    },
-  });
-
-  if (process.env.VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${url}#${arg}`);
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg });
   }
 });

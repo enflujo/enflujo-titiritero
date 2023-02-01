@@ -24,6 +24,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/lokijs": "^1.5.7",
     "@vitejs/plugin-vue": "^4.0.0",
     "electron": "^22.0.3",
     "electron-builder": "^23.6.0",
@@ -37,6 +38,7 @@
     "vue-tsc": "^1.0.24"
   },
   "dependencies": {
+    "lokijs": "^1.5.12",
     "pinia": "^2.0.29",
     "psd": "^3.4.0",
     "vue-router": "4"

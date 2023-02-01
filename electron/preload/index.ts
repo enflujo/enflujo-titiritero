@@ -10,3 +10,7 @@ ipcRenderer.on('fotogramasCargados', async () => {
   console.log('fotogramas cargados');
   window.postMessage('fotogramasCargados', '*');
 });
+
+ipcRenderer.on('main-process-message', (evento) => {
+  console.log(evento);
+});
