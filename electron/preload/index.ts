@@ -6,11 +6,12 @@ contextBridge.exposeInMainWorld('photoshop', {
   },
 });
 
-ipcRenderer.on('fotogramasCargados', async () => {
-  console.log('fotogramas cargados');
-  window.postMessage('fotogramasCargados', '*');
+const aplicacionCargada = new Promise((resolver) => {
+  window.onload = resolver;
 });
 
-ipcRenderer.on('main-process-message', (evento) => {
-  console.log(evento);
+// https://www.electronjs.org/docs/latest/tutorial/message-ports#communicating-directly-between-the-main-process-and-the-main-world-of-a-context-isolated-page
+ipcRenderer.on('canalComunicacion', async (evento) => {
+  await aplicacionCargada;
+  window.postMessage('canalComunicacion', '*', evento.ports);
 });

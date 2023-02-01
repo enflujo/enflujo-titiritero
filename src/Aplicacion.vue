@@ -18,9 +18,40 @@ watch(
 
 onMounted(() => {
   window.onmessage = (evento) => {
-    if (evento.data && evento.data === 'fotogramasCargados') {
-      fotogramasCargados.value = true;
+    if (evento.source === window && evento.data === 'canalComunicacion') {
+      const [canalPagina] = evento.ports;
+
+      canalPagina.onmessage = ({ data }) => {
+        if (data.error) {
+          console.error(data.error);
+        } else {
+          switch (data.llave) {
+            case 'informacionBasica':
+              cerebro.informacionBasica = data.datos;
+              break;
+
+            default:
+              break;
+          }
+        }
+        console.log('desde canal del comunicación', data);
+      };
     }
+
+    // switch (evento.data) {
+    //   case 'fotogramasCargados':
+    //     fotogramasCargados.value = true;
+    //     break;
+    //   case 'informacionBasica':
+    //     console.log('info', evento);
+    //     break;
+
+    //   default:
+    //     break;
+    // }
+
+    // if (evento.data === 'fotogramasCargados') {
+    // }
   };
 });
 
@@ -57,29 +88,29 @@ const entradaArchivo = (evento: Event) => {
   }
 };
 
-function loadFrames() {
-  var imagesLoadedCount = 0;
+// function loadFrames() {
+//   var imagesLoadedCount = 0;
 
-  for (var i = 0; i < workingFile.images.length; i++) {
-    var img = new Image();
-    imgs.push(img);
-    img.onload = imageLoaded;
-    img.src = '../' + workingFile.images[i].path;
-    img.dataset.offX = workingFile.images[i].offX;
-    img.dataset.offY = workingFile.images[i].offY;
-  }
+//   for (var i = 0; i < workingFile.images.length; i++) {
+//     var img = new Image();
+//     imgs.push(img);
+//     img.onload = imageLoaded;
+//     img.src = '../' + workingFile.images[i].path;
+//     img.dataset.offX = workingFile.images[i].offX;
+//     img.dataset.offY = workingFile.images[i].offY;
+//   }
 
-  function imageLoaded() {
-    imagesLoadedCount++;
+//   function imageLoaded() {
+//     imagesLoadedCount++;
 
-    if (imagesLoadedCount === workingFile.images.length) {
-      nav.items.forEach(function (item) {
-        item.classList.remove('hidden');
-      });
-      loading.classList.add('hidden');
-    }
-  }
-}
+//     if (imagesLoadedCount === workingFile.images.length) {
+//       nav.items.forEach(function (item) {
+//         item.classList.remove('hidden');
+//       });
+//       loading.classList.add('hidden');
+//     }
+//   }
+// }
 </script>
 
 <template>

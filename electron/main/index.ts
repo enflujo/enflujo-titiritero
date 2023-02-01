@@ -1,8 +1,8 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { release } from 'node:os';
-import { join } from 'node:path';
+import { app, BrowserWindow, shell, ipcMain, MessageChannelMain } from 'electron';
+import { release } from 'os';
+import { join, parse } from 'path';
 import { cargar } from './Photoshop';
-
+import { iniciarBD, agregarArchivo } from './bd';
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -51,20 +51,18 @@ async function createWindow() {
     },
   });
 
+  await iniciarBD();
+  inicio();
+}
+
+function inicio() {
   if (process.env.VITE_DEV_SERVER_URL) {
     // electron-vite-vue#298
     win.loadURL(url);
-    // Open devTool if the app is not packaged
   } else {
     win.loadFile(join(process.env.DIST, 'index.html'));
     win.webContents.openDevTools({ mode: 'detach' });
   }
-
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    console.log('cargado');
-    win?.webContents.postMessage('main-process-message', new Date().toLocaleString());
-  });
 
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -72,14 +70,24 @@ async function createWindow() {
     return { action: 'deny' };
   });
 
+  const { port1: canalPagina, port2: canalServidor } = new MessageChannelMain();
+
+  win.webContents.postMessage('canalComunicacion', null, [canalPagina]);
+  canalServidor.start();
+
   ipcMain.handle('nuevo-psd', async (_, archivo) => {
     archivo = JSON.parse(archivo);
+    const extension = parse(archivo.path).ext;
 
-    if (archivo.type === 'image/vnd.adobe.photoshop') {
-      cargar(archivo.path);
-      win.webContents.postMessage('fotogramasCargados', null);
+    agregarArchivo(archivo.name, archivo.path);
+
+    if (extension === '.psd' || archivo.type === 'image/vnd.adobe.photoshop') {
+      await cargar(archivo.path, canalServidor);
+      canalServidor.postMessage({ llave: 'fotogramasCargados' });
     } else {
-      console.error(archivo.name, ' is not a photoshop file. It is of type: ', archivo.type);
+      canalServidor.postMessage({
+        error: `${archivo.name} no es un archivo de Photoshop, es de tipo: ${archivo.type} con extensión: ${extension}`,
+      });
     }
   });
 }
