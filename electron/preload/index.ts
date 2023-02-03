@@ -1,11 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('photoshop', {
-  nuevo: (archivo: string) => {
-    ipcRenderer.invoke('nuevo-psd', archivo);
-  },
-});
-
 const aplicacionCargada = new Promise((resolver) => {
   window.onload = resolver;
 });

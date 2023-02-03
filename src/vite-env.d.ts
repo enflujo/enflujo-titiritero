@@ -5,17 +5,3 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
-
-export interface Photoshop {
-  nuevo: (archivo: string) => Promise<void>;
-}
-
-declare global {
-  interface Window {
-    photoshop: Photoshop;
-  }
-}
-
-export interface FileWithPath extends File {
-  path: string;
-}
