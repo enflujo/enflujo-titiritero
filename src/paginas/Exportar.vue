@@ -14,7 +14,7 @@
       <span class="entradaNombre">Quality: </span>
       <input
         id="custom-quality"
-        class="options-input"
+        class="opcionEntrada"
         type="number"
         min="0.1"
         max="1"

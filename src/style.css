@@ -67,22 +67,6 @@ input:focus {
   border: 1px solid;
 }
 
-.option-ideal {
-  cursor: pointer;
-  margin-left: 1em;
-  padding: 0.5em;
-  color: #d23d3d;
-  border: 1px solid;
-}
-.option-ideal:hover {
-  color: black;
-}
-.option-ideal.current {
-  border-color: black;
-  background-color: black;
-  color: white;
-}
-
 /*==============================
 =            EXPORT            =
 ==============================*/
