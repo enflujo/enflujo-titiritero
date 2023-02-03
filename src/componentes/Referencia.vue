@@ -1,29 +1,35 @@
 <script setup lang="ts">
-import { watch, computed } from 'vue';
+import { watch, computed, reactive } from 'vue';
 import { usarCerebroGeneral } from '../cerebros/general';
 const cerebro = usarCerebroGeneral();
+const datos = reactive({ ancho: 0, alto: 0, filas: 0, columnas: 0 });
 
 watch(
   () => cerebro.archivoActual,
-  (estado) => {
-    console.log(estado);
+  (nuevosDatos) => {
+    if (!nuevosDatos) return;
+    const { ancho, alto, cuadricula } = nuevosDatos;
+
+    if (cuadricula && ancho && alto) {
+      const [filas, columnas] = cuadricula.forma;
+      Object.assign(datos, { ancho, alto, filas, columnas });
+      cerebro.columnas = columnas;
+      cerebro.filas = filas;
+    }
   }
 );
 
 const dimensiones = computed(() => {
-  if (!cerebro.archivoActual) return null;
-  const { ancho, alto, cuadricula } = cerebro.archivoActual;
-  const [filas, columnas] = cuadricula.forma;
-
-  return { filas, columnas, ancho: ancho * columnas, alto: alto * filas };
+  const { filas, columnas, ancho, alto } = datos;
+  return { filas, columnas, ancho: ancho * cerebro.columnas, alto: alto * cerebro.filas };
 });
 </script>
 
 <template>
-  <div id="referencia">
+  <div id="referencia" v-if="cerebro.archivoActual && cerebro.archivoActual.cuadricula">
     <p>
       Forma:
-      <span>{{ cerebro.archivoActual?.cuadricula.forma[0] }} x {{ cerebro.archivoActual?.cuadricula.forma[1] }}</span>
+      <span>{{ cerebro.filas }} x {{ cerebro.columnas }}</span>
     </p>
     <p v-if="dimensiones">
       Cuadrícula: <span>{{ dimensiones.ancho }}</span> px x <span>{{ dimensiones.alto }}</span> px
