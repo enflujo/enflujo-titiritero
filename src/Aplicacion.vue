@@ -2,12 +2,12 @@
 import { ref, watch, onMounted } from 'vue';
 import Menu from './componentes/Menu.vue';
 import Referencia from './componentes/Referencia.vue';
-import { FileWithPath } from './vite-env';
+import Archivos from './componentes/Archivos.vue';
 import { usarCerebroGeneral } from './cerebros/general';
+import { FileWithPath } from './tipos';
 
 const cerebro = usarCerebroGeneral();
 const entrada = ref();
-const fotogramasCargados = ref(false);
 
 watch(
   () => cerebro.fotogramasCargados,
@@ -21,13 +21,18 @@ onMounted(() => {
     if (evento.source === window && evento.data === 'canalComunicacion') {
       const [canalPagina] = evento.ports;
 
+      cerebro.mensajero = canalPagina;
+
       canalPagina.onmessage = ({ data }) => {
         if (data.error) {
           console.error(data.error);
         } else {
           switch (data.llave) {
-            case 'informacionBasica':
-              cerebro.informacionBasica = data.datos;
+            case 'listaArchivos':
+              cerebro.lista = data.datos;
+              break;
+            case 'archivoActual':
+              cerebro.archivoActual = data.datos;
               break;
 
             default:
@@ -66,7 +71,7 @@ const arrastreFueraDeZona = (evento: DragEvent) => {
 const arrastreAccion = (evento: DragEvent) => {
   evento.preventDefault();
   if (evento.dataTransfer) {
-    window.photoshop.nuevo(JSON.stringify(evento.dataTransfer.files[0]));
+    cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: evento.dataTransfer.files[0] });
   }
 };
 
@@ -84,9 +89,11 @@ const entradaArchivo = (evento: Event) => {
   const entrada = evento.target as HTMLInputElement;
   if (entrada && entrada.files) {
     const { lastModified, name, path, size, type } = entrada.files[0] as FileWithPath;
-    window.photoshop.nuevo(JSON.stringify({ lastModified, name, path, size, type }));
+    cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: { lastModified, name, path, size, type } });
   }
 };
+
+function iniciarCuadricula() {}
 
 // function loadFrames() {
 //   var imagesLoadedCount = 0;
@@ -125,8 +132,7 @@ const entradaArchivo = (evento: Event) => {
       @click="buscarArchivo"
     ></div>
 
-    <h3>Archivos</h3>
-    <ul id="files"></ul>
+    <Archivos></Archivos>
   </aside>
 
   <main>
@@ -136,7 +142,25 @@ const entradaArchivo = (evento: Event) => {
   </main>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+input {
+  border: 1px dotted #ccc;
+  padding: 0.5em;
+
+  &:focus {
+    outline: 0;
+    border-color: black;
+  }
+}
+
+.entrada {
+  line-height: 1.5;
+}
+
+.entradaNombre {
+  margin-left: 1em;
+}
+
 #contenedor {
   width: 20%;
   position: fixed;
@@ -146,8 +170,30 @@ const entradaArchivo = (evento: Event) => {
   background-color: #e6e6e6;
 }
 
+.contenedorPagina {
+  transition: 0.2s right ease-in;
+  position: absolute;
+  background-color: white;
+  top: 0;
+  padding-top: 5em;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
 h3 {
   padding-left: 0.5em;
+}
+
+canvas {
+  margin: 0 auto;
+  display: block;
+  background-color: #ffffff;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNmZmYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9JyNhYWEnLz4KPC9zdmc+Cg==);
+}
+canvas::selection {
+  background-color: transparent;
 }
 
 #zona {

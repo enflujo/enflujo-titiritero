@@ -3,69 +3,75 @@ import { parse, join } from 'path';
 import fs from 'fs-extra';
 import { formatoNumeros } from './ayudas';
 import { MessagePortMain } from 'electron';
-
-export interface InformacionBasica {
-  total: number;
-  cuadricula: { parejo: boolean; forma: number[] };
-  imagenes: Imagen[];
-}
-
-export interface Imagen {
-  nombre: string;
-  ruta: string;
-  x: number;
-  y: number;
-}
+import bd from './bd';
+import { Archivo, InformacionBasica } from '../../src/tipos';
 
 export function cargar(ruta: string, canalServidor: MessagePortMain) {
-  return new Promise<void>(async (resolver) => {
+  return new Promise<Archivo>(async (resolver) => {
     const nombre = parse(ruta).name;
-    const rutaImgs = join('./animaciones/', nombre, '/fotogramas/');
-    const archivo = await psd.open(ruta);
-    const capas = archivo.tree().descendants();
-    const informacion: InformacionBasica = {
-      total: 0,
-      cuadricula: { parejo: false, forma: [] },
-      imagenes: [],
-    };
+    const yaExiste = bd.existeArchivo(nombre);
 
-    fs.ensureDir(rutaImgs, (error) => {
-      if (error) {
-        console.error(error);
-      } else {
-        capas.forEach((capa: any, i: number) => {
-          const nombreCapa = capa.get('name');
-          const rutaFotograma = join(rutaImgs, `${nombre}_${formatoNumeros(i, 6)}.png`);
-          informacion.imagenes.push({ nombre: nombreCapa, ruta: rutaFotograma, x: capa.left, y: capa.top });
-          informacion.total++;
-        });
+    if (yaExiste && yaExiste.imagenes) {
+      resolver(yaExiste);
+    } else {
+      const rutaImgs = join('./public/animaciones/', nombre, '/fotogramas/');
+      const archivo = await psd.open(ruta);
+      const arbol = archivo.tree();
+      const capas = arbol.descendants();
+      const total = capas.length;
+      const informacion: InformacionBasica = {
+        total,
+        cuadricula: { parejo: false, forma: [] },
+        imagenes: [],
+        ancho: arbol.width,
+        alto: arbol.height,
+      };
 
-        const formaCuadricula = [];
-        const { total } = informacion;
+      fs.ensureDir(rutaImgs, (error) => {
+        if (error) {
+          console.error(error);
+        } else {
+          const formaCuadricula = [];
 
-        for (let i = 0; i <= total; i++) {
-          if (total % i === 0) {
-            formaCuadricula.push(i);
+          informacion.total = total;
+
+          for (let i = 0; i <= total; i++) {
+            if (total % i === 0) {
+              formaCuadricula.push(i);
+            }
+          }
+
+          if (formaCuadricula.length > 0) {
+            informacion.cuadricula.parejo = true;
+            informacion.cuadricula.forma = formaCuadricula;
           }
         }
 
-        if (formaCuadricula.length > 0) {
-          informacion.cuadricula.parejo = true;
-          informacion.cuadricula.forma = formaCuadricula;
-        }
-      }
+        const archivoActual = bd.actualizarArchivoActual(informacion);
 
-      canalServidor.postMessage({ llave: 'informacionBasica', datos: informacion });
+        canalServidor.postMessage({ llave: 'archivoActual', datos: archivoActual });
+        canalServidor.postMessage({ llave: 'procesandoCapas', total, procesados: 0 });
 
-      informacion.imagenes.forEach((imagen, i) => {
-        try {
-          fs.statSync(imagen.ruta).isFile();
-        } catch (err) {
-          capas[i].saveAsPng(imagen.ruta);
-        }
+        let procesados = 0;
+
+        capas.forEach((capa: any, i: number) => {
+          const nombreCapa = capa.get('name');
+          const rutaFotograma = join(rutaImgs, `${nombre}_${formatoNumeros(i, 6)}.png`);
+          const archivoExiste = fs.existsSync(rutaFotograma);
+
+          if (!archivoExiste) {
+            capas[i].saveAsPng(rutaFotograma);
+          }
+
+          informacion.imagenes.push({ nombre: nombreCapa, ruta: rutaFotograma, x: capa.left, y: capa.top });
+          procesados++;
+          canalServidor.postMessage({ llave: 'procesandoCapas', total, procesados });
+        });
+
+        const datosArchivo = bd.actualizarArchivoActual(informacion);
+
+        resolver(datosArchivo);
       });
-
-      resolver();
-    });
+    }
   });
 }

@@ -1,9 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div id="export-page" class="page-wrapper">
-    <div class="options-form">
-      <span class="options-form-name">Select: </span>
+  <div id="export-page" class="contenedorPagina">
+    <div class="entrada">
+      <span class="entradaNombre">Select: </span>
       <select id="quality-options">
         <option value="1">max</option>
         <option value="0.8">high</option>
@@ -11,7 +11,7 @@
         <option value="0.1">low</option>
       </select>
 
-      <span class="options-form-name">Quality: </span>
+      <span class="entradaNombre">Quality: </span>
       <input
         id="custom-quality"
         class="options-input"
@@ -23,13 +23,13 @@
         name="quality"
       />
 
-      <span class="options-form-name">Format: </span>
+      <span class="entradaNombre">Format: </span>
       <select id="format-options">
         <option value="jpeg">jpeg</option>
         <option value="png">png</option>
       </select>
 
-      <span class="options-form-name">Data Format: </span>
+      <span class="entradaNombre">Data Format: </span>
       <select id="data-format-options">
         <option value="js">js</option>
         <option value="json">json</option>

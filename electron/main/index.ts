@@ -1,8 +1,10 @@
-import { app, BrowserWindow, shell, ipcMain, MessageChannelMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, MessageChannelMain, MessagePortMain } from 'electron';
 import { release } from 'os';
 import { join, parse } from 'path';
+import fs from 'fs-extra';
 import { cargar } from './Photoshop';
-import { iniciarBD, agregarArchivo } from './bd';
+import bd from './bd';
+import { Archivo } from '../../src/tipos';
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -38,7 +40,7 @@ let win: BrowserWindow | null = null;
 const preload = join(__dirname, '../preload/index.js');
 const url = process.env.VITE_DEV_SERVER_URL;
 
-async function createWindow() {
+async function crearAplicacion() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
@@ -51,11 +53,10 @@ async function createWindow() {
     },
   });
 
-  await iniciarBD();
-  inicio();
+  bd.iniciar().then(inicio).catch(console.error);
 }
 
-function inicio() {
+function inicio(archivos: Archivo[]) {
   if (process.env.VITE_DEV_SERVER_URL) {
     // electron-vite-vue#298
     win.loadURL(url);
@@ -64,35 +65,88 @@ function inicio() {
     win.webContents.openDevTools({ mode: 'detach' });
   }
 
-  // Make all links open with the browser, not with the application
+  // Hacer que los enlaces los abra el explorador y no la aplicación
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
   });
 
+  /**
+   * Crear canales de comunicación entre servidor y aplicación
+   */
   const { port1: canalPagina, port2: canalServidor } = new MessageChannelMain();
 
   win.webContents.postMessage('canalComunicacion', null, [canalPagina]);
   canalServidor.start();
 
-  ipcMain.handle('nuevo-psd', async (_, archivo) => {
-    archivo = JSON.parse(archivo);
-    const extension = parse(archivo.path).ext;
+  canalServidor.postMessage({ llave: 'listaArchivos', datos: archivos });
 
-    agregarArchivo(archivo.name, archivo.path);
+  canalServidor.on('message', async ({ data }) => {
+    switch (data.llave) {
+      case 'nuevoPSD':
+        const { name, path: ruta, type } = data.datos;
+        const nombreSinExtension = parse(name).name;
+        procesarPsd(ruta, nombreSinExtension, type, canalServidor);
+        break;
 
-    if (extension === '.psd' || archivo.type === 'image/vnd.adobe.photoshop') {
-      await cargar(archivo.path, canalServidor);
-      canalServidor.postMessage({ llave: 'fotogramasCargados' });
-    } else {
-      canalServidor.postMessage({
-        error: `${archivo.name} no es un archivo de Photoshop, es de tipo: ${archivo.type} con extensión: ${extension}`,
-      });
+      case 'borrarArchivo':
+        const { nombre } = data;
+        await fs.rm(`./public/animaciones/${nombre}`, { force: true, recursive: true });
+
+        bd.borrarArchivo(nombre);
+        canalServidor.postMessage({ llave: 'listaArchivos', datos: bd.listaArchivos() });
+        break;
+
+      case 'cambiarArchivoActual':
+        const existeArchivo = bd.existeArchivo(data.nombre);
+
+        if (existeArchivo) {
+          bd.cambiarArchivoActual(existeArchivo);
+
+          if (existeArchivo.imagenes) {
+            canalServidor.postMessage({ llave: 'archivoActual', datos: existeArchivo });
+          } else {
+            procesarPsd(data.ruta, data.nombre, '', canalServidor);
+          }
+        }
+      case 'pedirLista':
+        const lista = bd.listaArchivos();
+
+        if (lista.length) {
+          canalServidor.postMessage({ llave: 'listaArchivos', datos: bd.listaArchivos() });
+        }
+        break;
+      default:
+        break;
     }
   });
 }
 
-app.whenReady().then(createWindow);
+async function procesarPsd(ruta: string, nombre: string, tipo: string, canalServidor: MessagePortMain) {
+  const extension = parse(ruta).ext;
+
+  if (extension === '.psd' || tipo === 'image/vnd.adobe.photoshop') {
+    bd.agregarArchivo(nombre, ruta);
+    // Enviar lista de archivos con nuevo archivo.
+    canalServidor.postMessage({ llave: 'listaArchivos', datos: bd.listaArchivos() });
+
+    try {
+      const datosArchivo = await cargar(ruta, canalServidor);
+      // Volver a mandar datos, en este punto las rutas a las imágenes individuales esta disponible.
+      canalServidor.postMessage({ llave: 'archivoActual', datos: datosArchivo });
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    canalServidor.postMessage({
+      error: `${nombre} no es un archivo de Photoshop, es de tipo: ${tipo} con extensión: ${extension}`,
+    });
+
+    return;
+  }
+}
+
+app.whenReady().then(crearAplicacion);
 
 app.on('window-all-closed', () => {
   win = null;
@@ -112,6 +166,6 @@ app.on('activate', () => {
   if (allWindows.length) {
     allWindows[0].focus();
   } else {
-    createWindow();
+    crearAplicacion();
   }
 });

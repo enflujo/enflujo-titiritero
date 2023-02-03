@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia';
-import { InformacionBasica } from '../tipos';
+import { Archivo } from '../tipos';
 
 export const usarCerebroGeneral = defineStore('general', {
-  state: (): DatosGenerales => ({ fotogramasCargados: false }),
+  state: (): DatosGenerales => ({
+    fotogramasCargados: false,
+    lista: [],
+  }),
 });
 
 export interface DatosGenerales {
   fotogramasCargados: boolean;
-  informacionBasica?: InformacionBasica;
+  archivoActual?: Archivo;
+  lista?: Archivo[];
+  mensajero?: MessagePort;
 }
