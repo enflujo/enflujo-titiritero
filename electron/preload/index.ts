@@ -9,3 +9,7 @@ ipcRenderer.on('canalComunicacion', async (evento) => {
   await aplicacionCargada;
   window.postMessage('canalComunicacion', '*', evento.ports);
 });
+
+contextBridge.exposeInMainWorld('psttServidor', {
+  pedirMensajero: () => ipcRenderer.invoke('pedirMensajero'),
+});

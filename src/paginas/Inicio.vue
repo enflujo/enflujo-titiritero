@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from 'vue';
+import { onMounted, ref, Ref, watch, computed } from 'vue';
 import { usarCerebroGeneral } from '../cerebros/general';
 import { pixelesDePorcentaje, porcentaje } from '../utilidades/ayudas';
 
@@ -7,49 +7,107 @@ const cerebro = usarCerebroGeneral();
 const entradaColumnas: Ref<HTMLInputElement | null> = ref(null);
 const entradaFilas: Ref<HTMLInputElement | null> = ref(null);
 
-const lienzoCuadricula: Ref<HTMLCanvasElement | null> = ref(null);
-const lienzoFotograma: Ref<HTMLCanvasElement | null> = ref(null);
-const ctxCuadricula: Ref<CanvasRenderingContext2D | null> = ref(null);
-const ctxFotograma: Ref<CanvasRenderingContext2D | null> = ref(null);
+const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
+const contexto: Ref<CanvasRenderingContext2D | null> = ref(null);
 const opciones: Ref<HTMLDivElement | null> = ref(null);
 const opcionesIdeales: Ref<number[][]> = ref([]);
 
-onMounted(() => {
-  if (lienzoCuadricula.value) {
-    ctxCuadricula.value = lienzoCuadricula.value.getContext('2d');
-  }
-
-  if (lienzoFotograma.value) {
-    ctxFotograma.value = lienzoFotograma.value.getContext('2d');
-  }
+const ancho = ref(0);
+const alto = ref(0);
+const dimsLienzo = computed((): { ancho: number; alto: number } => {
+  return { ancho: ancho.value * cerebro.columnas, alto: alto.value * cerebro.filas };
 });
 
-watch(
-  () => cerebro.archivoActual,
-  (datos) => {
-    console.log('datosActuales', datos);
-    if (datos && datos.ancho && datos.alto && datos.total) {
-      const { total } = datos;
-      const escala = porcentaje(pixelesDePorcentaje(80, window.innerWidth) / total, datos.ancho);
-      const ancho = pixelesDePorcentaje(escala, datos.ancho);
-      const alto = pixelesDePorcentaje(escala, datos.alto);
-
-      if (datos.cuadricula && datos.cuadricula.parejo) {
-        const ideales: number[][] = [];
-
-        datos.cuadricula.forma.forEach((columnas) => {
-          const filas = total / columnas;
-          ideales.push([columnas, filas]);
-        });
-
-        opcionesIdeales.value = ideales;
-      } else {
-      }
-    }
-    // const {tota} = cerebro;
-    //
+onMounted(() => {
+  if (lienzo.value) {
+    contexto.value = lienzo.value.getContext('2d');
   }
-);
+
+  cargar();
+});
+
+watch(() => cerebro.archivoActual, cargar);
+watch(() => cerebro.columnas, recargar);
+
+function cargar() {
+  if (cerebro.archivoActual?.cuadricula && !opcionesIdeales.value.length) {
+    definirOpcionesIdeales();
+  }
+
+  if (cerebro.archivoActual) {
+    definirDimensiones();
+    pintarCuadricula();
+  }
+}
+
+function recargar() {
+  definirDimensiones();
+  pintarCuadricula();
+}
+
+function definirDimensiones() {
+  const datos = cerebro.archivoActual;
+
+  if (datos && datos.ancho && datos.alto && datos.total) {
+    const { total } = datos;
+    const escala = porcentaje(pixelesDePorcentaje(75, window.innerWidth) / total, datos.ancho);
+    ancho.value = pixelesDePorcentaje(escala, datos.ancho);
+    alto.value = pixelesDePorcentaje(escala, datos.alto);
+  }
+}
+
+function definirOpcionesIdeales() {
+  if (cerebro.archivoActual?.cuadricula && cerebro.archivoActual?.cuadricula.parejo) {
+    const { cuadricula, total } = cerebro.archivoActual;
+    const ideales: number[][] = [];
+
+    cuadricula.forma.forEach((columnas) => {
+      const filas = total / columnas;
+      ideales.push([columnas, filas]);
+    });
+
+    opcionesIdeales.value = ideales;
+  }
+}
+
+function pintarCuadricula() {
+  if (!cerebro.archivoActual || !contexto.value || !lienzo.value) return;
+  const { columnas } = cerebro;
+  const { total } = cerebro.archivoActual;
+  const ctx = contexto.value;
+  const tamañoFuente = 11;
+  const mitadFuente = tamañoFuente / 2;
+
+  lienzo.value.width = dimsLienzo.value.ancho;
+  lienzo.value.height = dimsLienzo.value.alto;
+  ctx.fillStyle = 'white';
+  ctx.font = `${tamañoFuente}px Tahoma`;
+  let fila = 0;
+  let columna = 0;
+
+  for (let i = 0; i < total; i++) {
+    const x = columna * ancho.value + 0.5;
+    const y = fila * alto.value + 0.5;
+
+    ctx.beginPath();
+    ctx.rect(x, y, ancho.value - 1, alto.value - 1);
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.save();
+    ctx.fillStyle = 'black';
+    ctx.fillText(`${i + 1}`, x + ancho.value / 2 - mitadFuente, y + alto.value / 2 + mitadFuente / 2);
+    ctx.restore();
+
+    if (columna < columnas - 1) {
+      columna++;
+    } else {
+      fila++;
+      columna = 0;
+    }
+  }
+}
 
 const esActual = (opcion: number[]): boolean => {
   const { columnas, filas } = cerebro;
@@ -61,7 +119,7 @@ const cambioDeOpcion = (opcion: number[]) => {
   cerebro.columnas = opcion[1];
 };
 
-const actualizarCuadricula = (lado: string) => {
+const actualizarFormaCuadricula = (lado: string) => {
   let columnas = entradaColumnas.value?.valueAsNumber;
   let filas = entradaFilas.value?.valueAsNumber;
   const total = cerebro.archivoActual?.total;
@@ -92,8 +150,7 @@ const actualizarCuadricula = (lado: string) => {
 </script>
 
 <template>
-  <h1>Cargando imágenes...</h1>
-  <div id="grid-page" class="contenedorPagina">
+  <div class="contenedorPagina">
     <div class="entrada">
       <span class="entradaNombre">Filas: </span>
       <input
@@ -103,9 +160,8 @@ const actualizarCuadricula = (lado: string) => {
         min="1"
         :max="cerebro.archivoActual?.total"
         :value="cerebro.filas"
-        name="filas"
         placeholder="Filas"
-        @change="actualizarCuadricula('filas')"
+        @change="actualizarFormaCuadricula('filas')"
       />
 
       <span class="entradaNombre">Columnas: </span>
@@ -116,9 +172,8 @@ const actualizarCuadricula = (lado: string) => {
         min="1"
         :max="cerebro.archivoActual?.total"
         :value="cerebro.columnas"
-        name="columnas"
         placeholder="Columnas"
-        @change="actualizarCuadricula('columnas')"
+        @change="actualizarFormaCuadricula('columnas')"
       />
     </div>
 
@@ -134,8 +189,8 @@ const actualizarCuadricula = (lado: string) => {
         {{ opcion[0] }} x {{ opcion[1] }}
       </span>
     </div>
-    <canvas ref="lienzoCuadricula"></canvas>
-    <canvas id="lienzoFotograma" ref="lienzoFotograma"></canvas>
+
+    <canvas ref="lienzo"></canvas>
   </div>
 </template>
 
