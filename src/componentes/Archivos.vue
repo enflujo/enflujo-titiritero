@@ -18,8 +18,9 @@ watch(
 );
 
 onMounted(() => {
-  console.log('pidiendo lista', cerebro.mensajero);
-  cerebro.mensajero?.postMessage({ llave: 'pedirLista' });
+  if (cerebro.mensajero) {
+    cerebro.mensajero?.postMessage({ llave: 'pedirLista' });
+  }
 });
 
 const abrirArchivo = (nombre: string) => {

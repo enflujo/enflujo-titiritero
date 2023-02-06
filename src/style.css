@@ -1,30 +1,3 @@
-html {
-  box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-::selection {
-  background: rgba(235, 80, 80, 0.8);
-  color: #ffe6f9;
-}
-
-body {
-  font-family: 'CicleFina';
-  line-height: 1.6;
-}
-
 ul {
   list-style: none;
   margin: 0;
@@ -38,24 +11,6 @@ h4,
 h5 {
   font-family: 'CicleGordita';
   font-weight: normal;
-}
-
-main {
-  width: 80%;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  overflow: hidden;
-}
-
-input {
-  border: 1px dotted #ccc;
-  padding: 0.5em;
-}
-input:focus {
-  outline: 0;
-  border-color: black;
 }
 
 #player-fr {
@@ -83,51 +38,3 @@ pre[class*='language'] {
 }
 
 /*=====  End of EXPORT  ======*/
-/*==================================
-=            FILES LIST            =
-==================================*/
-
-/*=====  End of FILES LIST  ======*/
-
-/*==================================
-=            NAVIGATION            =
-==================================*/
-#nav {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  position: absolute;
-  z-index: 999;
-  text-align: left;
-}
-
-.nav-item {
-  cursor: pointer;
-  margin: 0 0.5em;
-  padding: 1em;
-  display: inline-block;
-  background-color: #e6e6e6;
-  transition: 0.2s all ease-in-out;
-}
-.nav-item:hover {
-  background-color: #f2f2f2;
-}
-.nav-item.current {
-  background-color: #333333;
-  color: white;
-  cursor: default;
-}
-
-/*=====  End of NAVIGATION  ======*/
-/*=============================
-=            PAGES            =
-=============================*/
-
-#ideal-options {
-  padding: 2em 1em;
-}
-
-/*=====  End of PAGES  ======*/
-.hidden {
-  display: none;
-}

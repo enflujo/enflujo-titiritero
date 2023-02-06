@@ -32,7 +32,7 @@ const dimensiones = computed(() => {
       <span>{{ cerebro.filas }} x {{ cerebro.columnas }}</span>
     </p>
     <p v-if="dimensiones">
-      Cuadrícula: <span>{{ dimensiones.ancho }}</span> px x <span>{{ dimensiones.alto }}</span> px
+      Dimensiones: <span>{{ dimensiones.ancho }}</span> px x <span>{{ dimensiones.alto }}</span> px
     </p>
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div id="export-page" class="contenedorPagina">
+  <div class="contenedorPagina">
     <div class="entrada">
       <span class="entradaNombre">Select: </span>
       <select id="quality-options">

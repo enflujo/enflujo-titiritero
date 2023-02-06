@@ -17,6 +17,10 @@ watch(
 );
 
 onMounted(() => {
+  if (!cerebro.mensajero) {
+    window.psttServidor.pedirMensajero();
+  }
+
   window.onmessage = (evento) => {
     if (evento.source === window && evento.data === 'canalComunicacion') {
       const [canalPagina] = evento.ports;
@@ -39,24 +43,8 @@ onMounted(() => {
               break;
           }
         }
-        console.log('desde canal del comunicación', data);
       };
     }
-
-    // switch (evento.data) {
-    //   case 'fotogramasCargados':
-    //     fotogramasCargados.value = true;
-    //     break;
-    //   case 'informacionBasica':
-    //     console.log('info', evento);
-    //     break;
-
-    //   default:
-    //     break;
-    // }
-
-    // if (evento.data === 'fotogramasCargados') {
-    // }
   };
 });
 
@@ -75,10 +63,6 @@ const arrastreAccion = (evento: DragEvent) => {
   }
 };
 
-const arrastreClic = (evento: DragEvent) => {
-  // fileInput.click();
-};
-
 const buscarArchivo = () => {
   if (entrada.value) {
     entrada.value.click();
@@ -92,32 +76,6 @@ const entradaArchivo = (evento: Event) => {
     cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: { lastModified, name, path, size, type } });
   }
 };
-
-function iniciarCuadricula() {}
-
-// function loadFrames() {
-//   var imagesLoadedCount = 0;
-
-//   for (var i = 0; i < workingFile.images.length; i++) {
-//     var img = new Image();
-//     imgs.push(img);
-//     img.onload = imageLoaded;
-//     img.src = '../' + workingFile.images[i].path;
-//     img.dataset.offX = workingFile.images[i].offX;
-//     img.dataset.offY = workingFile.images[i].offY;
-//   }
-
-//   function imageLoaded() {
-//     imagesLoadedCount++;
-
-//     if (imagesLoadedCount === workingFile.images.length) {
-//       nav.items.forEach(function (item) {
-//         item.classList.remove('hidden');
-//       });
-//       loading.classList.add('hidden');
-//     }
-//   }
-// }
 </script>
 
 <template>
@@ -143,6 +101,42 @@ function iniciarCuadricula() {}
 </template>
 
 <style lang="scss">
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+::selection {
+  background: rgba(235, 80, 80, 0.8);
+  color: #ffe6f9;
+}
+
+main {
+  width: 80%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'CicleFina';
+  line-height: 1.6;
+}
+
 input {
   border: 1px dotted #ccc;
   padding: 0.5em;

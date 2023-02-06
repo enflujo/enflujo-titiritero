@@ -1,11 +1,42 @@
 <template>
-  <ul id="nav">
-    <router-link to="/">Inicio</router-link>
-    <router-link to="/exportar">Exportar</router-link>
-    <li id="to-grid" class="nav-item hidden" data-target="grid-page">Grid</li>
-    <li id="to-sprite" class="nav-item hidden" data-target="sprite-page">Sprite</li>
-    <li id="to-preview" class="nav-item hidden" data-target="preview-page">Preview Animation</li>
-    <li id="to-export" class="nav-item hidden" data-target="export-page">Export</li>
-    <li id="loading-images" class="hidden">Loading images...</li>
-  </ul>
+  <nav id="menu">
+    <router-link to="/" class="boton">Inicio</router-link>
+    <router-link to="/previsualizar" class="boton">Previsualizar</router-link>
+    <router-link to="/exportar" class="boton">Exportar</router-link>
+  </nav>
 </template>
+
+<style lang="scss" scoped>
+#menu {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  position: absolute;
+  z-index: 999;
+  text-align: left;
+}
+
+a,
+a:link {
+  text-decoration: none;
+}
+
+.boton {
+  margin: 0 0.5em;
+  padding: 1em;
+  display: inline-block;
+  background-color: darken(white, 10%);
+  transition: 0.2s all ease-in-out;
+  color: black;
+
+  &:hover {
+    background-color: darken(white, 5%);
+  }
+
+  &.router-link-active {
+    background-color: lighten(black, 20%);
+    color: white;
+    cursor: default;
+  }
+}
+</style>

@@ -1,7 +1,5 @@
 /// <reference types="vite-plugin-electron/electron-env" />
 
-import { InformacionBasica } from '../src/tipos';
-
 declare namespace NodeJS {
   interface ProcessEnv {
     VSCODE_DEBUG?: 'true';
