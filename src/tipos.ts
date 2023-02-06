@@ -1,9 +1,9 @@
 export interface InformacionBasica {
-  total?: number;
+  total: number;
   cuadricula?: { parejo: boolean; forma: number[] };
   imagenes?: Imagen[];
-  ancho?: number;
-  alto?: number;
+  ancho: number;
+  alto: number;
 }
 
 export interface Imagen {
