@@ -24,6 +24,10 @@ onMounted(() => {
   }
 
   cargar();
+
+  document.body.addEventListener('resize', () => {
+    console.log('cambio de tamaño');
+  });
 });
 
 watch(() => cerebro.archivoActual, cargar);
@@ -123,6 +127,8 @@ const actualizarFormaCuadricula = (lado: string) => {
   let columnas = entradaColumnas.value?.valueAsNumber;
   let filas = entradaFilas.value?.valueAsNumber;
   const total = cerebro.archivoActual?.total;
+  const anchoImg = cerebro.archivoActual?.ancho || 0;
+  const altoImg = cerebro.archivoActual?.alto || 0;
 
   if (filas && columnas && total) {
     if (columnas * filas === total) {
@@ -145,6 +151,8 @@ const actualizarFormaCuadricula = (lado: string) => {
 
     cerebro.filas = filas;
     cerebro.columnas = columnas;
+    cerebro.ancho = columnas * anchoImg;
+    cerebro.alto = filas * altoImg;
   }
 };
 </script>

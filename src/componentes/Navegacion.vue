@@ -1,21 +1,13 @@
 <template>
-  <nav id="menu">
-    <router-link to="/" class="boton">Inicio</router-link>
+  <nav id="navegacion">
+    <router-link to="/" class="boton">Cuadrícula</router-link>
+    <router-link to="/imagen" class="boton">Imagen</router-link>
     <router-link to="/previsualizar" class="boton">Previsualizar</router-link>
     <router-link to="/exportar" class="boton">Exportar</router-link>
   </nav>
 </template>
 
 <style lang="scss" scoped>
-#menu {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  position: absolute;
-  z-index: 999;
-  text-align: left;
-}
-
 a,
 a:link {
   text-decoration: none;
