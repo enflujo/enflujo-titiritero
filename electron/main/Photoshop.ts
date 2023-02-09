@@ -63,7 +63,14 @@ export function cargar(ruta: string, canalServidor: MessagePortMain) {
             capas[i].saveAsPng(rutaFotograma);
           }
 
-          informacion.imagenes.push({ nombre: nombreCapa, ruta: rutaFotograma, x: capa.left, y: capa.top });
+          informacion.imagenes.push({
+            nombre: nombreCapa,
+            ruta: rutaFotograma.replace('public', ''),
+            x: capa.left,
+            y: capa.top,
+            ancho: capa.width,
+            alto: capa.height,
+          });
           procesados++;
           canalServidor.postMessage({ llave: 'procesandoCapas', total, procesados });
         });

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import Menu from './componentes/Menu.vue';
+import Navegacion from './componentes/Navegacion.vue';
 import Referencia from './componentes/Referencia.vue';
 import Archivos from './componentes/Archivos.vue';
 import { usarCerebroGeneral } from './cerebros/general';
@@ -8,13 +8,6 @@ import { FileWithPath } from './tipos';
 
 const cerebro = usarCerebroGeneral();
 const entrada = ref();
-
-watch(
-  () => cerebro.fotogramasCargados,
-  (estado) => {
-    console.log(estado);
-  }
-);
 
 onMounted(() => {
   if (!cerebro.mensajero) {
@@ -79,8 +72,8 @@ const entradaArchivo = (evento: Event) => {
 </script>
 
 <template>
-  <aside id="contenedor">
-    <input type="file" id="entrada" ref="entrada" @change="entradaArchivo" hidden="true" />
+  <nav id="menu">
+    <input type="file" class="entrada" ref="entrada" @change="entradaArchivo" hidden="true" />
 
     <div
       id="zona"
@@ -91,10 +84,10 @@ const entradaArchivo = (evento: Event) => {
     ></div>
 
     <Archivos></Archivos>
-  </aside>
+  </nav>
 
   <main>
-    <Menu></Menu>
+    <Navegacion></Navegacion>
     <Referencia></Referencia>
     <router-view></router-view>
   </main>
@@ -123,23 +116,43 @@ body {
   color: #ffe6f9;
 }
 
-main {
-  width: 80%;
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#aplicacion {
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+}
+
+#menu {
+  width: 300px;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
+  background-color: #e6e6e6;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+main {
   overflow: hidden;
 }
 
 body {
-  font-family: 'CicleFina';
   line-height: 1.6;
 }
 
 input {
   border: 1px dotted #ccc;
   padding: 0.5em;
+  line-height: 1.5;
+  min-width: 100px;
 
   &:focus {
     outline: 0;
@@ -147,33 +160,14 @@ input {
   }
 }
 
-.entrada {
-  line-height: 1.5;
-}
-
 .entradaNombre {
   margin-left: 1em;
 }
 
-#contenedor {
-  width: 20%;
-  position: fixed;
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 100%;
-  background-color: #e6e6e6;
-}
-
 .contenedorPagina {
-  transition: 0.2s right ease-in;
-  position: absolute;
-  background-color: white;
-  top: 0;
-  padding-top: 5em;
-  right: 0;
-  width: 100%;
-  height: 100%;
+  padding-top: 1em;
   overflow: auto;
+  width: calc(100vw - 300px);
 }
 
 h3 {

@@ -5,7 +5,6 @@ import { usarCerebroGeneral } from '../cerebros/general';
 import { Archivo } from '../tipos';
 
 const cerebro = usarCerebroGeneral();
-const actual = ref('');
 const listaArchivos: Ref<Archivo[] | null> = ref(null);
 
 watch(
@@ -24,14 +23,17 @@ onMounted(() => {
 });
 
 const abrirArchivo = (nombre: string) => {
-  if (actual.value === nombre) return;
+  if (cerebro.nombre === nombre) return;
 
-  actual.value = nombre;
+  cerebro.nombre = nombre;
   cerebro.mensajero?.postMessage({ llave: 'cambiarArchivoActual', nombre });
 };
 
 const borrarArchivo = (nombre: string) => {
   cerebro.mensajero?.postMessage({ llave: 'borrarArchivo', nombre });
+  cerebro.archivoActual = null;
+  cerebro.columnas = 0;
+  cerebro.filas = 0;
 };
 </script>
 
@@ -42,7 +44,7 @@ const borrarArchivo = (nombre: string) => {
       v-for="archivo in listaArchivos"
       :key="archivo.nombre"
       class="archivo"
-      :class="actual === archivo.nombre ? 'actual' : ''"
+      :class="cerebro.nombre === archivo.nombre ? 'actual' : ''"
     >
       <span class="nombre" @click="abrirArchivo(archivo.nombre || 'archivo sin nombre')">{{ archivo.nombre }}</span>
 

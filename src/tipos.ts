@@ -11,6 +11,8 @@ export interface Imagen {
   ruta: string;
   x: number;
   y: number;
+  ancho: number;
+  alto: number;
 }
 
 export interface Archivo extends InformacionBasica {
@@ -29,3 +31,12 @@ interface Meta {
 export interface FileWithPath extends File {
   path: string;
 }
+
+export type Datos = {
+  fuente: string;
+  ancho: number;
+  alto: number;
+  filas: number;
+  columnas: number;
+  fotogramas?: string[];
+};
