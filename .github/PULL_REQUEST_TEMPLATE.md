@@ -1,12 +1,12 @@
-<!-- Thank you for contributing! -->
+<!-- ¡Gracias por ayudarnos! -->
 
-### Description
+# Descripción
 
-<!-- Please insert your description here and provide especially info about the "what" this PR is solving -->
+<!-- Describe lo que este PR intenta arreglar. -->
 
-### What is the purpose of this pull request? <!-- (put an "X" next to an item) -->
+## ¿Qué describe mejor tu contribución? <!-- (pon una "X" en lo que mejor describe este PR) -->
 
-- [ ] Bug fix
-- [ ] New Feature
-- [ ] Documentation update
-- [ ] Other
+- [ ] Arreglar un error
+- [ ] Nueva funcionalidad
+- [ ] Actualizar documentación
+- [ ] Otro
