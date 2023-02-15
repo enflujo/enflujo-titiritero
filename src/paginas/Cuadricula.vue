@@ -119,8 +119,12 @@ const esActual = (opcion: number[]): boolean => {
 };
 
 const cambioDeOpcion = (opcion: number[]) => {
+  const anchoImg = cerebro.archivoActual?.ancho || 0;
+  const altoImg = cerebro.archivoActual?.alto || 0;
   cerebro.filas = opcion[0];
   cerebro.columnas = opcion[1];
+  cerebro.ancho = opcion[1] * anchoImg;
+  cerebro.alto = opcion[0] * altoImg;
 };
 
 const actualizarFormaCuadricula = (lado: string) => {
