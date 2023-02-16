@@ -2,20 +2,14 @@
 import { ref, Ref, onMounted, watch, reactive } from 'vue';
 import { usarCerebroGeneral } from '../cerebros/general';
 import { pixelesDePorcentaje, porcentaje } from '../utilidades/ayudas';
+import Lienzo from '../componentes/Lienzo.vue';
 
 const cerebro = usarCerebroGeneral();
 const entradaAncho: Ref<HTMLInputElement | null> = ref(null);
 const entradaAlto: Ref<HTMLInputElement | null> = ref(null);
-const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
-const contexto: Ref<CanvasRenderingContext2D | null> = ref(null);
 const maximo = reactive({ ancho: 0, alto: 0 });
-const fotogramas: Ref<HTMLImageElement[]> = ref([]);
 
 onMounted(() => {
-  if (lienzo.value) {
-    contexto.value = lienzo.value.getContext('2d');
-  }
-
   cargar();
 });
 
@@ -30,72 +24,9 @@ watch(
 
 function cargar() {
   if (cerebro.archivoActual) {
-    if (cerebro.archivoActual.imagenes && cerebro.archivoActual.imagenes.length) {
-      const { imagenes, total } = cerebro.archivoActual;
-      fotogramas.value = [];
-      let conteo = 0;
-
-      imagenes.forEach((fuente) => {
-        const img = new Image();
-        img.onload = () => {
-          conteo = conteo + 1;
-          fotogramas.value.push(img);
-
-          if (conteo === total) {
-            pintar();
-          }
-        };
-        img.src = fuente.ruta;
-      });
-    }
-
     maximo.ancho = cerebro.columnas * cerebro.archivoActual.ancho;
     maximo.alto = cerebro.filas * cerebro.archivoActual.alto;
   }
-}
-
-function pintar() {
-  if (!cerebro.archivoActual || !lienzo.value || !contexto.value) return;
-  const { columnas, escala } = cerebro;
-  const { total, ancho: ancho1, alto: alto1, imagenes } = cerebro.archivoActual;
-
-  if (!imagenes || !imagenes.length) return;
-  lienzo.value.width = cerebro.ancho;
-  lienzo.value.height = cerebro.alto;
-  const ctx = contexto.value;
-
-  const anchoFotograma = (ancho1 * escala) | 0;
-  const altoFotograma = (alto1 * escala) | 0;
-  let indiceFotograma = 0;
-  let fila = 0;
-  let columna = 0;
-
-  const pintarProgresivamente = () => {
-    if (indiceFotograma < total) {
-      const fotograma = fotogramas.value[indiceFotograma];
-      const { ancho: anchoImg, alto: altoImg, x: x1, y: y1 } = imagenes[indiceFotograma];
-      const x2 = columna * anchoFotograma;
-      const y2 = fila * altoFotograma;
-      const x = x1 * escala + x2;
-      const y = y1 * escala + y2;
-      const ancho = anchoImg * escala;
-      const alto = altoImg * escala;
-
-      ctx.drawImage(fotograma, 0, 0, anchoImg, altoImg, x, y, ancho, alto);
-
-      if (columna < columnas - 1) {
-        columna++;
-      } else {
-        fila++;
-        columna = 0;
-      }
-
-      indiceFotograma++;
-      requestAnimationFrame(pintarProgresivamente);
-    }
-  };
-
-  requestAnimationFrame(pintarProgresivamente);
 }
 
 function actualizarDimensiones(lado: string) {
@@ -118,8 +49,6 @@ function actualizarDimensiones(lado: string) {
   cerebro.escala = escala / 100;
   cerebro.ancho = anchoNuevo | 0;
   cerebro.alto = altoNuevo | 0;
-
-  pintar();
 }
 </script>
 
@@ -150,7 +79,6 @@ function actualizarDimensiones(lado: string) {
         @change="actualizarDimensiones('alto')"
       />px
     </div>
-
-    <canvas ref="lienzo"></canvas>
+    <Lienzo />
   </div>
 </template>

@@ -8,6 +8,7 @@ import { FileWithPath } from './tipos';
 
 const cerebro = usarCerebroGeneral();
 const entrada = ref();
+const zonaActiva = ref(false);
 
 onMounted(() => {
   if (!cerebro.mensajero) {
@@ -39,18 +40,30 @@ onMounted(() => {
       };
     }
   };
+
+  const contenedor = document.getElementById('aplicacion');
+
+  if (contenedor) {
+    contenedor.ondragenter = (evento: DragEvent) => {
+      evento.preventDefault();
+      evento.stopPropagation();
+
+      zonaActiva.value = true;
+    };
+  }
 });
 
-const arrastreInicio = (evento: DragEvent) => {
-  (evento.target as HTMLDivElement).classList.add('enZona');
+const arrastreInicio = () => {
+  zonaActiva.value = true;
 };
 
-const arrastreFueraDeZona = (evento: DragEvent) => {
-  (evento.target as HTMLDivElement).classList.remove('enZona');
+const arrastreFueraDeZona = () => {
+  zonaActiva.value = false;
 };
 
 const arrastreAccion = (evento: DragEvent) => {
   evento.preventDefault();
+
   if (evento.dataTransfer) {
     cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: evento.dataTransfer.files[0] });
   }
@@ -60,6 +73,11 @@ const buscarArchivo = () => {
   if (entrada.value) {
     entrada.value.click();
   }
+};
+
+const evitarEventosPredeterminados = (evento: DragEvent) => {
+  evento.preventDefault();
+  evento.stopPropagation();
 };
 
 const entradaArchivo = (evento: Event) => {
@@ -77,11 +95,20 @@ const entradaArchivo = (evento: Event) => {
 
     <div
       id="zona"
-      @dragenter="arrastreInicio"
+      :class="zonaActiva ? 'activa' : ''"
+      @drag="evitarEventosPredeterminados"
+      @dragstart="evitarEventosPredeterminados"
+      @dragend="evitarEventosPredeterminados"
+      @dragover="evitarEventosPredeterminados"
+      @dragenter="evitarEventosPredeterminados"
       @dragleave="arrastreFueraDeZona"
       @drop="arrastreAccion"
-      @click="buscarArchivo"
-    ></div>
+    >
+      <span><img src="/icono-photoshop.svg" alt="psd" /></span>
+      <span>Soltar archivo para procesarlo</span>
+    </div>
+
+    <div id="buscarArchivo" @click="buscarArchivo"></div>
 
     <Archivos></Archivos>
   </nav>
@@ -185,6 +212,33 @@ canvas::selection {
 }
 
 #zona {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  position: fixed;
+  background-color: rgba($color: #4862b7, $alpha: 0.85);
+  color: #e5dddd;
+  overflow: hidden;
+  display: none;
+  font-size: 2.3em;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+
+  &.activa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  img {
+    height: 60px;
+    margin-right: 0.3em;
+  }
+}
+
+#buscarArchivo {
   width: 100%;
   height: 80px;
   display: table;
@@ -202,7 +256,6 @@ canvas::selection {
     vertical-align: middle;
   }
 
-  &.enZona,
   &:hover {
     background-color: lighten(black, 20%);
     color: white;

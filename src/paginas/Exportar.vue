@@ -4,12 +4,15 @@ import 'highlight.js/styles/panda-syntax-dark.css';
 import javascript from 'highlight.js/lib/languages/javascript';
 import json from 'highlight.js/lib/languages/json';
 import { onMounted, ref, Ref } from 'vue';
+import Lienzo from '../componentes/Lienzo.vue';
 import { Datos } from '../tipos';
 import { usarCerebroGeneral } from '../cerebros/general';
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('json', json);
 
 const cerebro = usarCerebroGeneral();
+const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
+const contexto: Ref<CanvasRenderingContext2D | null> = ref(null);
 const calidad: Ref<HTMLInputElement | null> = ref(null);
 const formatoImagen: Ref<HTMLSelectElement | null> = ref(null);
 const formatoDatos: Ref<HTMLSelectElement | null> = ref(null);
@@ -18,13 +21,16 @@ const valorCalidad = ref(1);
 const nombreArchivo = ref(cerebro.nombre);
 
 onMounted(() => {
+  if (lienzo.value) {
+    contexto.value = lienzo.value.getContext('2d');
+  }
   actualizarDatos();
 });
 
 function actualizarDatos() {
   if (!cerebro.archivoActual || !calidad.value || !formatoImagen.value || !formatoDatos.value) return null;
 
-  const { ancho, alto, columnas, filas, archivoActual } = cerebro;
+  const { ancho, alto, columnas, filas, archivoActual, escala } = cerebro;
   const { valueAsNumber: valorCalidad } = calidad.value;
 
   const respuesta: Datos = {
@@ -35,6 +41,29 @@ function actualizarDatos() {
     filas,
     fotogramas: [],
   };
+
+  const { imagenes } = archivoActual;
+
+  if (imagenes) {
+    let columna = 0;
+    let fila = 0;
+    const anchoFotograma = (ancho / columnas) | 0;
+    const altoFotograma = (alto / filas) | 0;
+
+    respuesta.fotogramas = imagenes.map(() => {
+      const x = columna * anchoFotograma;
+      const y = fila * altoFotograma;
+
+      if (columna < columnas - 1) {
+        columna++;
+      } else {
+        fila++;
+        columna = 0;
+      }
+
+      return { x, y, ancho: anchoFotograma, alto: altoFotograma };
+    });
+  }
 
   if (formatoDatos.value.value === 'json') {
     datos.value = hljs.highlight(JSON.stringify(respuesta, null, 2), { language: 'json' }).value;
@@ -47,9 +76,9 @@ function actualizarDatos() {
   columnas: ${respuesta.columnas},
   filas: ${respuesta.filas},
   fotogramas: [
-    ${archivoActual.imagenes
-      ?.map((imagen) => {
-        return `{x: ${imagen.x}, y: ${imagen.y}}`;
+    ${respuesta.fotogramas
+      ?.map((fotograma) => {
+        return `{x: ${fotograma.x}, y: ${fotograma.y}, ancho: ${fotograma.ancho}, alto: ${fotograma.alto}}`;
       })
       .join(`\n    `)}
   ]
@@ -127,6 +156,8 @@ function actualizarNombre({ target }: Event) {
 
     <pre><code dangerousl v-if="datos" v-html="datos"></code></pre>
     <ul id="downloads-list"></ul>
+
+    <Lienzo />
   </div>
 </template>
 

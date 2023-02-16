@@ -38,5 +38,12 @@ export type Datos = {
   alto: number;
   filas: number;
   columnas: number;
-  fotogramas?: string[];
+  fotogramas?: Fotogramas[];
+};
+
+export type Fotogramas = {
+  x: number;
+  y: number;
+  ancho: number;
+  alto: number;
 };
