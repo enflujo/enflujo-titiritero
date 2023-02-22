@@ -11,6 +11,7 @@ export const usarCerebroGeneral = defineStore('general', {
     archivoActual: null,
     escala: 1,
     nombre: '',
+    imagen: null,
   }),
 });
 
@@ -24,4 +25,5 @@ export interface DatosGenerales {
   alto: number;
   escala: number;
   nombre: string;
+  imagen: string | null;
 }

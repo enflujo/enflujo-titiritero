@@ -11,19 +11,15 @@ hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('json', json);
 
 const cerebro = usarCerebroGeneral();
-const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
-const contexto: Ref<CanvasRenderingContext2D | null> = ref(null);
 const calidad: Ref<HTMLInputElement | null> = ref(null);
 const formatoImagen: Ref<HTMLSelectElement | null> = ref(null);
 const formatoDatos: Ref<HTMLSelectElement | null> = ref(null);
 const datos: Ref<string | null> = ref(null);
 const valorCalidad = ref(1);
 const nombreArchivo = ref(cerebro.nombre);
+let nombre = '';
 
 onMounted(() => {
-  if (lienzo.value) {
-    contexto.value = lienzo.value.getContext('2d');
-  }
   actualizarDatos();
 });
 
@@ -32,9 +28,9 @@ function actualizarDatos() {
 
   const { ancho, alto, columnas, filas, archivoActual, escala } = cerebro;
   const { valueAsNumber: valorCalidad } = calidad.value;
-
+  nombre = `${nombreArchivo.value}_${columnas}x${filas}-${ancho}x${alto}_${valorCalidad}.${formatoImagen.value.value}`;
   const respuesta: Datos = {
-    fuente: `/${nombreArchivo.value}_${columnas}x${filas}-${ancho}x${alto}_${valorCalidad}.${formatoImagen.value.value}`,
+    fuente: `/${nombre}`,
     ancho,
     alto,
     columnas,
@@ -110,6 +106,18 @@ function actualizarNombre({ target }: Event) {
 
   actualizarDatos();
 }
+
+function exportar() {
+  if (cerebro.mensajero && cerebro.imagen) {
+    cerebro.mensajero.postMessage({
+      llave: 'exportar',
+      nombre,
+      formato: formatoImagen.value ? formatoImagen.value.value : 'webp',
+      calidad: valorCalidad.value || 1,
+      imagen: cerebro.imagen,
+    });
+  }
+}
 </script>
 
 <template>
@@ -142,7 +150,7 @@ function actualizarNombre({ target }: Event) {
       <select ref="formatoImagen" @change="actualizarDatos">
         <option value="webp">webp</option>
         <option value="png">png</option>
-        <option value="jpg">jpg</option>
+        <option value="jpeg">jpeg</option>
       </select>
 
       <span class="entradaNombre">Formato Datos: </span>
@@ -151,7 +159,7 @@ function actualizarNombre({ target }: Event) {
         <option value="json">json</option>
       </select>
 
-      <button id="build">Crear</button>
+      <button id="build" @click="exportar">Exportar Imagen</button>
     </div>
 
     <pre><code dangerousl v-if="datos" v-html="datos"></code></pre>

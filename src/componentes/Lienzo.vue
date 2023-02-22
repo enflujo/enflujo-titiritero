@@ -56,6 +56,8 @@ function pintar() {
   let columna = 0;
 
   const pintarProgresivamente = () => {
+    cerebro.imagen = null;
+
     if (indiceFotograma < total) {
       const fotograma = fotogramas.value[indiceFotograma];
       const { ancho: anchoImg, alto: altoImg, x: x1, y: y1 } = imagenes[indiceFotograma];
@@ -77,6 +79,11 @@ function pintar() {
 
       indiceFotograma++;
       requestAnimationFrame(pintarProgresivamente);
+    } else {
+      if (lienzo.value) {
+        const imagenEnTexto = lienzo.value.toDataURL('image/webp', 1);
+        cerebro.imagen = imagenEnTexto.split(',')[1];
+      }
     }
   };
 

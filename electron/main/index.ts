@@ -1,10 +1,11 @@
-import { app, BrowserWindow, shell, MessageChannelMain, MessagePortMain, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, MessageChannelMain, MessagePortMain, ipcMain, dialog } from 'electron';
 import { release } from 'os';
 import { join, parse } from 'path';
 import fs from 'fs-extra';
 import { cargar } from './Photoshop';
 import bd from './bd';
-import { Archivo } from '../../src/tipos';
+import sharp from 'sharp';
+import { ParametrosCompresion } from '../../src/tipos';
 
 process.env.DIST_ELECTRON = join(__dirname, '..');
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist');
@@ -104,6 +105,44 @@ function crearMensajero() {
           if (lista.length) {
             canalServidor.postMessage({ llave: 'listaArchivos', datos: bd.listaArchivos() });
           }
+          break;
+        case 'exportar':
+          if (data.imagen.length) {
+            const imagen = Buffer.from(data.imagen, 'base64');
+
+            dialog
+              .showSaveDialog(aplicacion, {
+                title: 'Titereando ando',
+                buttonLabel: 'Guardar',
+                filters: [{ name: 'Imagenes', extensions: ['jpeg', 'png', 'webp'] }],
+                defaultPath: data.nombre,
+                properties: [],
+              })
+              .then((archivo) => {
+                if (archivo.canceled) {
+                  console.log(':(');
+                } else {
+                  console.log(archivo.filePath);
+                  const opciones: ParametrosCompresion = {};
+
+                  if (data.formato === 'png') {
+                    opciones.compressionLevel = data.calidad;
+                  } else if (data.formato === 'jpeg') {
+                    opciones.quality = data.calidad * 100;
+                    opciones.mozjpeg = true;
+                  } else {
+                    opciones.quality = data.calidad * 100;
+                  }
+                  try {
+                    sharp(imagen)[data.formato](opciones).toFile(`${archivo.filePath}`);
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }
+              })
+              .catch(console.error);
+          }
+
           break;
         default:
           break;

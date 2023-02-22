@@ -47,3 +47,9 @@ export type Fotogramas = {
   ancho: number;
   alto: number;
 };
+
+export interface ParametrosCompresion {
+  compressionLevel?: number;
+  quality?: number;
+  mozjpeg?: boolean;
+}
