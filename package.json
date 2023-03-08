@@ -18,9 +18,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "electron-rebuild"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.2.10",
     "@types/lokijs": "^1.5.7",
     "@types/sharp": "^0.31.1",
     "@vitejs/plugin-vue": "^4.0.0",
