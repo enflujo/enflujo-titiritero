@@ -74,7 +74,7 @@ function actualizarDatos() {
   fotogramas: [
     ${respuesta.fotogramas
       ?.map((fotograma) => {
-        return `{x: ${fotograma.x}, y: ${fotograma.y}, ancho: ${fotograma.ancho}, alto: ${fotograma.alto}}`;
+        return `{x: ${fotograma.x}, y: ${fotograma.y}, ancho: ${fotograma.ancho}, alto: ${fotograma.alto}},`;
       })
       .join(`\n    `)}
   ]
