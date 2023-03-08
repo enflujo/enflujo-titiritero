@@ -61,15 +61,11 @@ function pintar() {
     if (indiceFotograma < total) {
       const fotograma = fotogramas.value[indiceFotograma];
       const { ancho: anchoImg, alto: altoImg, x: x1, y: y1 } = imagenes[indiceFotograma];
-      console.log(anchoFotograma, anchoImg, indiceFotograma);
       const x2 = columna * anchoFotograma;
       const y2 = fila * altoFotograma;
-      const x = x1 * escala + x2;
-      const y = y1 * escala + y2;
       const ancho = anchoImg * escala;
       const alto = altoImg * escala;
-      console.log(fotograma, 0, 0, anchoImg, altoImg, x, y, ancho, alto);
-      ctx.drawImage(fotograma, 0, 0, anchoImg, altoImg, x, y, ancho, alto);
+      ctx.drawImage(fotograma, -x1, -y1, anchoImg, altoImg, x2, y2, ancho, alto);
 
       if (columna < columnas - 1) {
         columna++;
