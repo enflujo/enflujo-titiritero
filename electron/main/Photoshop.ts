@@ -15,10 +15,12 @@ export function cargar(ruta: string, canalServidor: MessagePortMain) {
       resolver(yaExiste);
     } else {
       const rutaImgs = join('./public/animaciones/', nombre, '/fotogramas/');
+      console.log('abriendo photoshop');
       const archivo = await psd.open(ruta);
       const arbol = archivo.tree();
       const capas = arbol.descendants();
       const total = capas.length;
+      console.log('cargando info basica');
       const informacion: InformacionBasica = {
         total,
         cuadricula: { parejo: false, forma: [] },
@@ -53,12 +55,14 @@ export function cargar(ruta: string, canalServidor: MessagePortMain) {
         canalServidor.postMessage({ llave: 'procesandoCapas', total, procesados: 0 });
 
         let procesados = 0;
-
+        console.log('inicio de procesar photoshop');
         capas.forEach((capa: any, i: number) => {
           const nombreCapa = capa.get('name');
+          console.log(nombreCapa);
           const rutaFotograma = join(rutaImgs, `${nombre}_${formatoNumeros(i, 6)}.png`);
           const archivoExiste = fs.existsSync(rutaFotograma);
 
+          console.log('creando fotograma', rutaFotograma);
           if (!archivoExiste) {
             capas[i].saveAsPng(rutaFotograma);
           }
@@ -71,6 +75,7 @@ export function cargar(ruta: string, canalServidor: MessagePortMain) {
             ancho: capa.width,
             alto: capa.height,
           });
+          console.log(informacion);
           procesados++;
           canalServidor.postMessage({ llave: 'procesandoCapas', total, procesados });
         });

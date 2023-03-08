@@ -26,7 +26,7 @@ onMounted(() => {
 function actualizarDatos() {
   if (!cerebro.archivoActual || !calidad.value || !formatoImagen.value || !formatoDatos.value) return null;
 
-  const { ancho, alto, columnas, filas, archivoActual, escala } = cerebro;
+  const { ancho, alto, columnas, filas, archivoActual } = cerebro;
   const { valueAsNumber: valorCalidad } = calidad.value;
   nombre = `${nombreArchivo.value}_${columnas}x${filas}-${ancho}x${alto}_${valorCalidad}.${formatoImagen.value.value}`;
   const respuesta: Datos = {

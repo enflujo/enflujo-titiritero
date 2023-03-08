@@ -171,7 +171,7 @@ function inicio() {
 
 async function procesarPsd(ruta: string, nombre: string, tipo: string) {
   const extension = parse(ruta).ext;
-
+  console.log(ruta);
   if (extension === '.psd' || tipo === 'image/vnd.adobe.photoshop') {
     bd.agregarArchivo(nombre, ruta);
     // Enviar lista de archivos con nuevo archivo.
