@@ -8,6 +8,8 @@
 </template>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 a,
 a:link {
   text-decoration: none;
@@ -17,16 +19,16 @@ a:link {
   margin: 0 0.5em;
   padding: 1em;
   display: inline-block;
-  background-color: darken(white, 10%);
+  background-color: color.adjust(white, $lightness: -10%);
   transition: 0.2s all ease-in-out;
   color: black;
 
   &:hover {
-    background-color: darken(white, 5%);
+    background-color: color.adjust(white, $lightness: -5%);
   }
 
   &.router-link-active {
-    background-color: lighten(black, 20%);
+    background-color: color.adjust(black, $lightness: -20%);
     color: white;
     cursor: default;
   }

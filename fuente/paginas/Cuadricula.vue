@@ -2,18 +2,16 @@
 import { onMounted, ref, Ref, watch, computed } from 'vue';
 import { usarCerebroGeneral } from '../cerebros/general';
 import { pixelesDePorcentaje, porcentaje } from '../utilidades/ayudas';
+import { storeToRefs } from 'pinia';
 
 const cerebro = usarCerebroGeneral();
+const { columnas, ancho, alto, capas } = storeToRefs(cerebro);
 const entradaColumnas: Ref<HTMLInputElement | null> = ref(null);
 const entradaFilas: Ref<HTMLInputElement | null> = ref(null);
-
 const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
 const contexto: Ref<CanvasRenderingContext2D | null> = ref(null);
 const opciones: Ref<HTMLDivElement | null> = ref(null);
 const opcionesIdeales: Ref<number[][]> = ref([]);
-
-const ancho = ref(0);
-const alto = ref(0);
 const dimsLienzo = computed((): { ancho: number; alto: number } => {
   return { ancho: ancho.value * cerebro.columnas, alto: alto.value * cerebro.filas };
 });
@@ -31,10 +29,10 @@ onMounted(() => {
 });
 
 watch(() => cerebro.archivoActual, cargar);
-watch(() => cerebro.columnas, recargar);
+watch(columnas, recargar);
 
 function cargar() {
-  if (cerebro.archivoActual?.cuadricula && !opcionesIdeales.value.length) {
+  if (cerebro.cuadricula && !opcionesIdeales.value.length) {
     definirOpcionesIdeales();
   }
 
@@ -45,18 +43,19 @@ function cargar() {
 }
 
 function recargar() {
+  console.log('hola');
   definirDimensiones();
   pintarCuadricula();
 }
 
 function definirDimensiones() {
   const datos = cerebro.archivoActual;
+  const total = capas.value.length;
 
-  if (datos && datos.ancho && datos.alto && datos.total) {
-    const { total } = datos;
-    const escala = porcentaje(pixelesDePorcentaje(75, window.innerWidth) / total, datos.ancho);
-    ancho.value = pixelesDePorcentaje(escala, datos.ancho);
-    alto.value = pixelesDePorcentaje(escala, datos.alto);
+  if (ancho.value && alto.value && total) {
+    const escala = porcentaje(pixelesDePorcentaje(75, window.innerWidth) / total, ancho.value);
+    ancho.value = pixelesDePorcentaje(escala, ancho.value);
+    alto.value = pixelesDePorcentaje(escala, ancho.value);
   }
 }
 

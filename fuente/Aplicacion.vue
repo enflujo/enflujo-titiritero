@@ -1,73 +1,45 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Navegacion from './componentes/Navegacion.vue';
 import Referencia from './componentes/Referencia.vue';
-import Archivos from './componentes/Archivos.vue';
 import { usarCerebroGeneral } from './cerebros/general';
-import { FileWithPath } from './tipos';
+import { cargarPsd } from './modulos/Photoshop';
+import { storeToRefs } from 'pinia';
 
 const cerebro = usarCerebroGeneral();
 const entrada = ref();
-const zonaActiva = ref(false);
+// const zonaActiva = ref(false);
+const { lienzo } = storeToRefs(cerebro);
 
+watch(lienzo, () => {
+  console.log(lienzo.value);
+});
 onMounted(() => {
-  if (!cerebro.mensajero) {
-    window.psttServidor.pedirMensajero();
-  }
-
-  window.onmessage = (evento) => {
-    if (evento.source === window && evento.data === 'canalComunicacion') {
-      const [canalPagina] = evento.ports;
-
-      cerebro.mensajero = canalPagina;
-
-      canalPagina.onmessage = ({ data }) => {
-        if (data.error) {
-          console.error(data.error);
-        } else {
-          switch (data.llave) {
-            case 'listaArchivos':
-              cerebro.lista = data.datos;
-              break;
-            case 'archivoActual':
-              cerebro.archivoActual = data.datos;
-              break;
-
-            default:
-              break;
-          }
-        }
-      };
-    }
-  };
-
-  const contenedor = document.getElementById('aplicacion');
-
-  if (contenedor) {
-    contenedor.ondragenter = (evento: DragEvent) => {
-      evento.preventDefault();
-      evento.stopPropagation();
-
-      zonaActiva.value = true;
-    };
-  }
+  // const contenedor = document.getElementById('aplicacion');
+  // if (contenedor) {
+  //   contenedor.ondragenter = (evento: DragEvent) => {
+  //     evento.preventDefault();
+  //     evento.stopPropagation();
+  //     zonaActiva.value = true;
+  //   };
+  // }
 });
 
-const arrastreInicio = () => {
-  zonaActiva.value = true;
-};
+// const arrastreInicio = () => {
+//   zonaActiva.value = true;
+// };
 
-const arrastreFueraDeZona = () => {
-  zonaActiva.value = false;
-};
+// const arrastreFueraDeZona = () => {
+//   zonaActiva.value = false;
+// };
 
-const arrastreAccion = (evento: DragEvent) => {
-  evento.preventDefault();
+// const arrastreAccion = (evento: DragEvent) => {
+//   evento.preventDefault();
 
-  if (evento.dataTransfer) {
-    cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: evento.dataTransfer.files[0] });
-  }
-};
+//   if (evento.dataTransfer) {
+//     cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: evento.dataTransfer.files[0] });
+//   }
+// };
 
 const buscarArchivo = () => {
   if (entrada.value) {
@@ -75,16 +47,19 @@ const buscarArchivo = () => {
   }
 };
 
-const evitarEventosPredeterminados = (evento: DragEvent) => {
-  evento.preventDefault();
-  evento.stopPropagation();
-};
+// const evitarEventosPredeterminados = (evento: DragEvent) => {
+//   evento.preventDefault();
+//   evento.stopPropagation();
+// };
 
-const entradaArchivo = (evento: Event) => {
+const entradaArchivo = async (evento: Event) => {
   const entrada = evento.target as HTMLInputElement;
+
   if (entrada && entrada.files) {
-    const { lastModified, name, path, size, type } = entrada.files[0] as FileWithPath;
-    cerebro.mensajero?.postMessage({ llave: 'nuevoPSD', datos: { lastModified, name, path, size, type } });
+    const archivo = entrada.files[0] as File;
+    const buffer = await archivo.arrayBuffer();
+
+    cargarPsd(buffer);
   }
 };
 </script>
@@ -93,7 +68,7 @@ const entradaArchivo = (evento: Event) => {
   <nav id="menu">
     <input type="file" class="entrada" ref="entrada" @change="entradaArchivo" hidden="true" />
 
-    <div
+    <!-- <div
       id="zona"
       :class="zonaActiva ? 'activa' : ''"
       @drag="evitarEventosPredeterminados"
@@ -106,11 +81,9 @@ const entradaArchivo = (evento: Event) => {
     >
       <span><img src="/icono-photoshop.svg" alt="psd" /></span>
       <span>Soltar archivo para procesarlo</span>
-    </div>
+    </div> -->
 
     <div id="buscarArchivo" @click="buscarArchivo"></div>
-
-    <Archivos></Archivos>
   </nav>
 
   <main>
@@ -121,6 +94,8 @@ const entradaArchivo = (evento: Event) => {
 </template>
 
 <style lang="scss">
+@use 'sass:color';
+
 html {
   box-sizing: border-box;
 }
@@ -257,7 +232,7 @@ canvas::selection {
   }
 
   &:hover {
-    background-color: lighten(black, 20%);
+    background-color: color.adjust(black, $lightness: -20%);
     color: white;
   }
 }

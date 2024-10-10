@@ -134,7 +134,8 @@ function crearMensajero() {
                     opciones.quality = data.calidad * 100;
                   }
                   try {
-                    sharp(imagen)[data.formato](opciones).toFile(`${archivo.filePath}`);
+                    const img = sharp(imagen)[data.formato](opciones);
+                    img.toFile(`${archivo.filePath}`);
                   } catch (error) {
                     console.log(error);
                   }

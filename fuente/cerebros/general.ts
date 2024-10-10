@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { Archivo } from '../tipos';
+import { Archivo, ICuadricula } from '../tipos';
+import type { Layer } from 'ag-psd';
 
 export const usarCerebroGeneral = defineStore('general', {
   state: (): DatosGenerales => ({
@@ -12,6 +13,9 @@ export const usarCerebroGeneral = defineStore('general', {
     escala: 1,
     nombre: '',
     imagen: null,
+    lienzo: null,
+    cuadricula: { parejo: false, forma: [] },
+    capas: [],
   }),
 });
 
@@ -26,4 +30,7 @@ export interface DatosGenerales {
   escala: number;
   nombre: string;
   imagen: string | null;
+  lienzo: HTMLCanvasElement | null;
+  cuadricula: ICuadricula;
+  capas: Layer[];
 }

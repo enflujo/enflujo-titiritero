@@ -14,20 +14,17 @@ dist-electron
 release
 *.local
 
-# Editor directories and files
-.vscode/.debug.env
-.idea
+# temporales
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# lockfile
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
 
 public/animaciones
 bd/archivos.json
+
+# Ver documentación de Yarn moderno (> v2): https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

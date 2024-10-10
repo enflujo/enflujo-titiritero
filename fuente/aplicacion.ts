@@ -2,17 +2,13 @@ import { createApp } from 'vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import Cuadricula from './paginas/Cuadricula.vue';
-import Imagen from './paginas/Imagen.vue';
-import Previsualizar from './paginas/Previsualizar.vue';
-import Exportar from './paginas/Exportar.vue';
-import './style.css';
 import Aplicacion from './Aplicacion.vue';
 
 const rutas = [
   { path: '/', component: Cuadricula },
-  { path: '/imagen', component: Imagen },
-  { path: '/previsualizar', component: Previsualizar },
-  { path: '/exportar', component: Exportar },
+  { path: '/imagen', component: () => import('./paginas/Imagen.vue') },
+  { path: '/previsualizar', component: () => import('./paginas/Previsualizar.vue') },
+  { path: '/exportar', component: () => import('./paginas/Exportar.vue') },
 ];
 
 const enrutador = createRouter({

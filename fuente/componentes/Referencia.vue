@@ -1,36 +1,35 @@
 <script setup lang="ts">
 import { watch, onMounted } from 'vue';
 import { usarCerebroGeneral } from '../cerebros/general';
+import { storeToRefs } from 'pinia';
 const cerebro = usarCerebroGeneral();
+const { cuadricula, ancho, alto, columnas, filas } = storeToRefs(cerebro);
 
 onMounted(() => {
   actualizar();
 });
 
-watch(() => cerebro.archivoActual, actualizar);
+watch(cuadricula, actualizar);
 
 function actualizar() {
-  if (!cerebro.archivoActual) return;
-
-  const { ancho, alto, cuadricula } = cerebro.archivoActual;
-  if (cuadricula && ancho && alto) {
-    const [filas, columnas] = cuadricula.forma;
+  if (ancho.value && alto.value) {
+    const [filas, columnas] = cuadricula.value.forma;
     cerebro.columnas = columnas;
     cerebro.filas = filas;
-    cerebro.ancho = ancho * columnas;
-    cerebro.alto = alto * filas;
+    // cerebro.ancho = ancho.value * columnas;
+    // cerebro.alto = alto.value * filas;
   }
 }
 </script>
 
 <template>
-  <div id="referencia" v-if="cerebro.archivoActual && cerebro.archivoActual.cuadricula">
+  <div id="referencia" v-if="cuadricula && ancho && alto">
     <p>
       Forma:
-      <span>{{ cerebro.columnas }} x {{ cerebro.filas }}</span>
+      <span>{{ columnas }} x {{ filas }}</span>
     </p>
     <p>
-      Dimensiones: <span>{{ cerebro.ancho }}</span> px x <span>{{ cerebro.alto }}</span> px
+      Dimensiones: <span>{{ ancho }}</span> px x <span>{{ alto }}</span> px
     </p>
   </div>
 </template>

@@ -1,7 +1,12 @@
+export interface ICuadricula {
+  parejo: boolean;
+  forma: number[];
+}
+
 export interface InformacionBasica {
   total: number;
-  cuadricula?: { parejo: boolean; forma: number[] };
-  imagenes?: Imagen[];
+  cuadricula: ICuadricula;
+  imagenes: Imagen[];
   ancho: number;
   alto: number;
 }
@@ -26,10 +31,6 @@ interface Meta {
   revisions: number;
   created: number;
   version: number;
-}
-
-export interface FileWithPath extends File {
-  path: string;
 }
 
 export type Datos = {
