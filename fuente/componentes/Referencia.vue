@@ -7,9 +7,9 @@ const { cuadricula, ancho, alto, columnas, filas } = storeToRefs(cerebro);
 
 watch(cuadricula, (datosCuadricula) => {
   if (ancho.value && alto.value) {
-    const [filas, columnas] = datosCuadricula.forma;
-    cerebro.columnas = columnas;
-    cerebro.filas = filas;
+    const primeraForma = datosCuadricula.forma[0];
+    cerebro.columnas = primeraForma.columnas;
+    cerebro.filas = primeraForma.filas;
     cerebro.anchoImg = ancho.value * columnas;
     cerebro.altoImg = alto.value * filas;
   }

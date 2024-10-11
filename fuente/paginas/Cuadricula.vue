@@ -60,7 +60,7 @@ function definirDimensiones() {
       pixelesDePorcentaje(75, window.innerWidth) / total,
       ancho.value
     );
-    contenedor.value;
+
     const escala = porcentaje(pixelesDePorcentaje(75, window.innerWidth) / total, ancho.value);
 
     // ancho.value = pixelesDePorcentaje(escala, ancho.value);
