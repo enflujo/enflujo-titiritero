@@ -5,7 +5,8 @@ import { pixelesDePorcentaje, porcentaje } from '../utilidades/ayudas';
 import { storeToRefs } from 'pinia';
 
 const cerebro = usarCerebroGeneral();
-const { columnas, ancho, alto, capas } = storeToRefs(cerebro);
+const { columnas, ancho, alto, capas, archivoActual } = storeToRefs(cerebro);
+const contenedor: Ref<HTMLDivElement | undefined> = ref();
 const entradaColumnas: Ref<HTMLInputElement | null> = ref(null);
 const entradaFilas: Ref<HTMLInputElement | null> = ref(null);
 const lienzo: Ref<HTMLCanvasElement | null> = ref(null);
@@ -28,34 +29,42 @@ onMounted(() => {
   });
 });
 
-watch(() => cerebro.archivoActual, cargar);
+watch(archivoActual, cargar);
 watch(columnas, recargar);
 
 function cargar() {
+  if (!archivoActual.value) return;
   if (cerebro.cuadricula && !opcionesIdeales.value.length) {
     definirOpcionesIdeales();
   }
 
-  if (cerebro.archivoActual) {
-    definirDimensiones();
-    pintarCuadricula();
-  }
+  definirDimensiones();
+  pintarCuadricula();
 }
 
 function recargar() {
-  console.log('hola');
   definirDimensiones();
   pintarCuadricula();
 }
 
 function definirDimensiones() {
-  const datos = cerebro.archivoActual;
+  const datos = archivoActual.value;
   const total = capas.value.length;
 
   if (ancho.value && alto.value && total) {
+    console.log(
+      'definiendo dims',
+      contenedor.value,
+      contenedor.value.clientWidth,
+      pixelesDePorcentaje(75, window.innerWidth),
+      pixelesDePorcentaje(75, window.innerWidth) / total,
+      ancho.value
+    );
+    contenedor.value;
     const escala = porcentaje(pixelesDePorcentaje(75, window.innerWidth) / total, ancho.value);
-    ancho.value = pixelesDePorcentaje(escala, ancho.value);
-    alto.value = pixelesDePorcentaje(escala, ancho.value);
+
+    // ancho.value = pixelesDePorcentaje(escala, ancho.value);
+    // alto.value = pixelesDePorcentaje(escala, ancho.value);
   }
 }
 
@@ -161,7 +170,7 @@ const actualizarFormaCuadricula = (lado: string) => {
 </script>
 
 <template>
-  <div class="contenedorPagina">
+  <div class="contenedorPagina" ref="contenedor">
     <div class="entrada">
       <span class="entradaNombre">Filas: </span>
       <input

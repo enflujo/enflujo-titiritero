@@ -1,13 +1,13 @@
 import { readPsd } from 'ag-psd';
 import { usarCerebroGeneral } from '../cerebros/general';
-import type { InformacionBasica } from '../tipos';
+import type { ICuadricula } from '../tipos';
 
 export function cargarPsd(archivo: ArrayBuffer) {
   const psd = readPsd(archivo);
   const cerebro = usarCerebroGeneral();
 
   if (psd.canvas) {
-    cerebro.lienzo = psd.canvas;
+    cerebro.lienzoPsd = psd.canvas;
   }
 
   const ancho = psd.width;
@@ -15,33 +15,29 @@ export function cargarPsd(archivo: ArrayBuffer) {
 
   if (psd.children) {
     const total = psd.children.length;
-    const informacion: InformacionBasica = {
-      total,
-      cuadricula: { parejo: false, forma: [] },
-      imagenes: [],
-      ancho,
-      alto,
-    };
-
-    const formaCuadricula = [];
+    const cuadricula: ICuadricula = { parejo: false, forma: [] };
 
     for (let i = 0; i <= total; i++) {
       if (total % i === 0) {
-        formaCuadricula.push(i);
+        const columnas = total / i;
+        const filas = i;
+        // Si la forma tiene algún valor, ya sabemos que se puede mostrar parejo.
+        cuadricula.parejo = true;
+        cuadricula.forma.push({ columnas, filas });
       }
     }
 
-    if (formaCuadricula.length > 0) {
-      informacion.cuadricula.parejo = true;
-      informacion.cuadricula.forma = formaCuadricula;
-    }
-
     cerebro.capas = psd.children;
-    cerebro.cuadricula = informacion.cuadricula;
-  }
+    cerebro.cuadricula = cuadricula;
+    cerebro.ancho = ancho;
+    cerebro.alto = alto;
 
-  cerebro.ancho = ancho;
-  cerebro.alto = alto;
+    if (!cuadricula.parejo) {
+      cerebro.columnas = psd.children.length;
+      cerebro.filas = 1;
+    }
+    console.log(cuadricula, psd.children.length);
+  }
 
   // return new Promise<Archivo>(async (resolver) => {
   //   const nombre = parse(ruta).name;

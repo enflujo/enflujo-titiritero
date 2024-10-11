@@ -9,11 +9,7 @@ import { storeToRefs } from 'pinia';
 const cerebro = usarCerebroGeneral();
 const entrada = ref();
 // const zonaActiva = ref(false);
-const { lienzo } = storeToRefs(cerebro);
 
-watch(lienzo, () => {
-  console.log(lienzo.value);
-});
 onMounted(() => {
   // const contenedor = document.getElementById('aplicacion');
   // if (contenedor) {

@@ -5,21 +5,15 @@ import { storeToRefs } from 'pinia';
 const cerebro = usarCerebroGeneral();
 const { cuadricula, ancho, alto, columnas, filas } = storeToRefs(cerebro);
 
-onMounted(() => {
-  actualizar();
-});
-
-watch(cuadricula, actualizar);
-
-function actualizar() {
+watch(cuadricula, (datosCuadricula) => {
   if (ancho.value && alto.value) {
-    const [filas, columnas] = cuadricula.value.forma;
+    const [filas, columnas] = datosCuadricula.forma;
     cerebro.columnas = columnas;
     cerebro.filas = filas;
-    // cerebro.ancho = ancho.value * columnas;
-    // cerebro.alto = alto.value * filas;
+    cerebro.anchoImg = ancho.value * columnas;
+    cerebro.altoImg = alto.value * filas;
   }
-}
+});
 </script>
 
 <template>
